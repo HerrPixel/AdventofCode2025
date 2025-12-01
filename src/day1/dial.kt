@@ -52,11 +52,11 @@ fun part2(): Int {
 fun parseInput() =
     Path("src/day1/input.txt").readText().trim().lines().map { s ->
         val direction = s[0]
-        val magnitude = s.substring(1)
+        val magnitude = s.substring(1).toInt()
 
         when (direction) {
-            'L' -> -1 * magnitude.toInt()
-            'R' -> magnitude.toInt()
+            'L' -> -1 * magnitude
+            'R' -> magnitude
             else -> 0
         }
     }
