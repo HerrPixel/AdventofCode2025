@@ -2,14 +2,9 @@ fun main() {
     // Each entry: (label, function1, function2)
     val solutions: List<Triple<String, () -> Any, () -> Any>> = listOf(
         Triple(
-            "Day1Test",
+            "Secret Entrance",
             { day1.part1() },
             { day1.part2() }
-        ),
-        Triple(
-            "Day1Test",
-            { "lol" },
-            { 24 }
         ),
     )
 
