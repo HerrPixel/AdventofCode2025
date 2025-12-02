@@ -33,7 +33,7 @@ fun main() {
         val end2 = System.nanoTime()
         val time2 = (end2 - start2)
 
-        println("   Part 1: $result2")
+        println("   Part 2: $result2")
         println("   Took: ${formatDuration(time2)}")
         println("")
     }
