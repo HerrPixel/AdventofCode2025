@@ -6,6 +6,11 @@ fun main() {
             { day1.part1() },
             { day1.part2() }
         ),
+        Triple(
+            "Gift Shop",
+            { day2.part1() },
+            { day2.part2() }
+        )
     )
 
     val start = System.nanoTime()
