@@ -10,6 +10,11 @@ fun main() {
             "Gift Shop",
             { day2.part1() },
             { day2.part2() }
+        ),
+        Triple(
+            "Lobby",
+            { day3.part1() },
+            { day3.part2() }
         )
     )
 
