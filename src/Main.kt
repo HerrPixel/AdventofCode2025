@@ -15,6 +15,11 @@ fun main() {
             "Lobby",
             { day3.part1() },
             { day3.part2() }
+        ),
+        Triple(
+            "Printing Department",
+            { day4.part1() },
+            { day4.part2() }
         )
     )
 
