@@ -18,3 +18,7 @@ tasks {
 application {
     mainClass.set("MainKt")  // OR your.package.MainKt
 }
+
+kotlin {
+    jvmToolchain(21)
+}
