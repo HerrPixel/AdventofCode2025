@@ -36,6 +36,10 @@ fun main() {
             { day7.part1() },
             { day7.part2()}
         ),
+        Triple(
+            "Playground",
+        { day8.part1() },
+        { day8.part2() }
         )
     )
 
