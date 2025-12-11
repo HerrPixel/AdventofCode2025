@@ -50,6 +50,11 @@ fun main() {
             "Factory",
             { day10.part1() },
             { day10.part1() }
+        ),
+        Triple(
+            "Reactor",
+            { day11.part1() },
+            { day11.part2() }
         )
     )
 
