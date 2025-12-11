@@ -45,6 +45,11 @@ fun main() {
             "Movie Theater",
             { day9.part1() },
             { day9.part2() }
+        ),
+        Triple(
+            "Factory",
+            { day10.part1() },
+            { day10.part1() }
         )
     )
 
