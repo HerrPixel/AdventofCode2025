@@ -55,6 +55,11 @@ fun main() {
             "Reactor",
             { day11.part1() },
             { day11.part2() }
+        ),
+        Triple(
+            "Christmas Tree Farm",
+            { day12.part1() },
+            { day12.part2()}
         )
     )
 
