@@ -2,246 +2,35 @@ package day10
 
 import kotlin.io.path.Path
 import kotlin.io.path.readText
-import kotlin.math.absoluteValue
-import kotlin.math.max
-import kotlin.math.min
 
-// Test each pair of point for rectangle size and keep the largest
-// Not very efficient but the input size is small
+// There are 2^n valid button combinations, iterate over all of them
+// and save the one that leads to the target state that has the fewest buttons pressed
 fun part1(): Int {
     val input = parseInput()
     var moveSum = 0
 
     for ((target, buttons, _) in input) {
-        moveSum += configureMachine(target, buttons)
+        moveSum += getMapOfValidCombinations(target.size,buttons)[target]!!.minOf { it.first }
     }
 
     return moveSum
 }
 
-//result is 42
-//result is 59
-//result is 189
-//result is 85
-//result is 69
-//result is 126
-//result is 53
-//result is 27
-//result is 71
-//result is 310
-//result is 76
-//result is 235
-//result is 212
-//result is 181
-//result is 37
-//result is 110
-//result is 96
-//result is 108
-//result is 75
-//result is 290
-//result is 48
-//result is 12
-//result is 31
-//result is 41
-//result is 223
-//result is 47
-//result is 235
-//result is 242
-//result is 57
-//result is 37
-//result is 185
-//result is 37
-//result is 69
-//result is 63
-//result is 86
-//result is 216
-//result is 69
-//result is 67
-//result is 228
-//result is 35
-//result is 13
-//result is 178
-//result is 248
-//result is 81
-//result is 210
-//result is 95
-//result is 195
-//result is 150
-//result is 269
-//result is 240
-//result is 193
-//result is 66
-//result is 45
-//result is 291
-//result is 54
-//result is 232
-//result is 98
-//result is 74
-//result is 134
-//result is 92
-//result is 58
-//result is 16
-//result is 64
-//result is 62
-//result is 264
-//result is 83
-//result is 115
-//result is 47
-//result is 66
-//result is 54
-//result is 111
-//result is 46
-//result is 52
-//result is 39
-//result is 71
-//result is 158
-//result is 125
-//result is 248
-//result is 46
-//result is 77
-//result is 89
-//result is 259
-//result is 47
-//result is 154
-//result is 106
-//result is 89
-//result is 79
-//result is 70
-//result is 69
-//result is 36
-//result is 125
-//result is 220
-//result is 66
-//result is 49
-//result is 260
-//result is 105
-//result is 41
-//result is 31
-//result is 121
-//result is 66
-//result is 108
-//result is 52
-//result is 72
-//result is 176
-//result is 70
-//result is 236
-//result is 196
-//result is 276
-//result is 216
-//result is 97
-//result is 115
-//result is 25
-//result is 266
-//result is 206
-//result is 258
-//result is 57
-//result is 63
-//result is 28
-//result is 42
-//result is 76
-//result is 103
-//result is 39
-//result is 168
-//result is 111
-//result is 182
-//result is 29
-//result is 50
-//result is 126
-//result is 78
-//result is 14
-//result is 66
-//result is 50
-//result is 222
-//result is 101
-//result is 57
-//result is 206
-//result is 57
-//result is 233
-//result is 183
-//result is 185
-//result is 31
-//result is 70
-//result is 60
-//result is 78
-//result is 75
-//result is 66
-//result is 68
-//result is 67
-//result is 81
-//result is 85
-//result is 77
-//result is 49
-//result is 131
-//result is 196
-//result is 19
-//result is 27
-//result is 53
-//result is 237
-//result is 54
-//result is 29
-//result is 57
-//result is 31
-//result is 274
-//result is 227
-//result is 58
-//result is 65
-//result is 92
-//result is 68
-//result is 52
-//result is 23
-//result is 78
-//result is 36
-//result is 174
-//result is 57
-//result is 55
-//result is 223
-//result is 70
-//result is 50
-//result is 91
-//result is 51
-//result is 220
-//result is 124
-//result is 114
-//result is 106
-//result is 125
-//result is 223
-//result is 36
-//result is 110
-//result is 221
-//result is 42
-//result is 30
-//result is 192
-//result is 49
-//result is 277
-//result is 199
-//result is 48
-//result is 218
-//result is 194
-//result is 227
-//result is 74
+// We first 'even' out the initial joltage counter by using the solution to Part1 and then solve the simpler problem
+// with the remaining joltage levels divided by 2 and multiply the best solution there by 2. For a more in-depth
+// explanation, see the comments in the bifurcation function.
+// Thanks to u/tenthmascot on Reddit for finding this efficient solution!
 fun part2(): Int {
     val input = parseInput()
     var moveSum = 0
 
     for ((_, buttons, joltages) in input) {
-        val start1 = System.nanoTime()
-        val result = branchBound(List(buttons.size) { -1 }, joltages, Int.MAX_VALUE, buttons)
-        val end1 = System.nanoTime()
-        val time1 = (end1 - start1)
-        println("result is $result in ${formatDuration(time1)}")
+        val result = bifurcate(joltages,buttons,mutableMapOf(List(joltages.size) {0} to 0),getMapOfValidCombinations(joltages.size,buttons))
         moveSum += result
 
     }
 
     return moveSum
-}
-
-fun binaryToInt(bits: List<Boolean>): Int {
-    var n = 0
-    for (b in bits) {
-        n = (n shl 1) or (if (b) 1 else 0)
-    }
-    return n
 }
 
 fun intToBinary(value: Int, length: Int): List<Boolean> =
@@ -250,164 +39,88 @@ fun intToBinary(value: Int, length: Int): List<Boolean> =
         ((value shr shift) and 1) == 1
     }
 
-fun configureMachine(target: List<Boolean>, buttons: List<List<Int>>): Int {
-    val queue = ArrayDeque<Pair<Int, Int>>()
-    val set = HashSet<Int>()
-    val targetInt = binaryToInt(target)
-    val targetLength = target.size
+// Returns a Map, mapping a target state to any combination of buttons needed to press to get this target state
+fun getMapOfValidCombinations(size: Int, buttons: List<List<Int>>): Map<List<Boolean>, MutableList<Pair<Int, IntArray>>> {
+    val combinations = mutableMapOf<List<Boolean>, MutableList<Pair<Int, IntArray>>>()
 
-    if (targetInt == 0) {
-        return 0
-    }
+    // For n buttons there are 2^n combinations of them. 2^n is the same as (1 << n)
+    for (combinationIndex in 0..<(1 shl buttons.size)) {
+        val counts = IntArray(size)
 
-    queue.addLast(Pair(0, 0))
-    set.add(0)
+        // get binary representation of combination by integer representation
+        val combination = intToBinary(combinationIndex,buttons.size)
 
-    while (queue.isNotEmpty()) {
-        val (state, nrOfMoves) = queue.removeFirst()
-
-        for (button in buttons) {
-            val newStateList = intToBinary(state, targetLength).toMutableList()
-
-            for (index in button) {
-                newStateList[index] = !newStateList[index]
-            }
-
-            val newState = binaryToInt(newStateList)
-
-            if (newState == targetInt) {
-                return nrOfMoves + 1
-            }
-
-            if (set.contains(newState)) {
-                continue
-            }
-
-            set.add(newState)
-            queue.addLast(Pair(newState, nrOfMoves + 1))
-        }
-
-    }
-    return -1
-}
-
-fun branchBound(state: List<Int>, remaining: List<Int>, currBest: Int, buttons: List<List<Int>>): Int {
-    var currBest = currBest
-    val currValue = state.sumOf { i -> (if (i == -1) 0 else i) }
-
-    //println("trying state $state with remaining $remaining, current Best is $currBest")
-
-    if (remaining.any { it < 0 }) {
-        return currBest
-    }
-
-    if (currValue + remaining.max() > currBest) {
-        return currBest
-    }
-
-    if (remaining.all { i -> i == 0 }) {
-        return currValue
-    }
-
-    if (state.all { i -> i != -1 }) {
-        return currBest
-    }
-
-    val unpressedButtons = buttons.withIndex().filter { state[it.index] == -1 }
-    val unfinishedCounters = remaining.withIndex().filter { it.value != 0 }
-
-    var mostRestricted = Pair(Int.MAX_VALUE,0)
-
-    // If there is a counter for which no button can change it anymore, prune
-    // If there is a counter that can only be changed by one button, press it
-    for ((counterIndex,counterValue) in unfinishedCounters) {
-        val validButtons = unpressedButtons.filter { it.value.contains(counterIndex) }
-
-        if (validButtons.isEmpty()) {
-            return currBest
-        }
-
-        if (validButtons.size == 1) {
-
-            val newState = state.toMutableList()
-            newState[validButtons.first().index] = counterValue
-
-            val newRemaining = remaining.toMutableList()
-            for (index in validButtons.first().value) {
-                newRemaining[index] -= counterValue
-            }
-
-            return branchBound(newState, newRemaining, currBest, buttons)
-        }
-
-        if (validButtons.size < mostRestricted.first) {
-            mostRestricted = Pair(validButtons.size,counterIndex)
-        }
-    }
-
-    // If for any two counters, a and b, there are only buttons that change both a and b and they have a different value, prune
-    // else, if there is exactly one such button, it must equalize them
-    for ((index1,counter1) in unfinishedCounters.withIndex()) {
-        for (counter2 in unfinishedCounters.drop(index1+1)) {
-            if (counter1.value == counter2.value) {
-                continue
-            }
-
-            val unbalancers = unpressedButtons.filter { it.value.contains(counter1.index).xor(it.value.contains(counter2.index)) }
-
-            if (unbalancers.isEmpty()) {
-                return currBest
-            }
-
-            if (unbalancers.size == 1) {
-                val difference = (counter1.value - counter2.value).absoluteValue
-
-                val newState = state.toMutableList()
-                newState[unbalancers.first().index] = difference
-
-                val newRemaining = remaining.toMutableList()
-                for (index in unbalancers.first().value) {
-                    newRemaining[index] -= difference
+        // get the effect on the counter displays of this button combination
+        for (i in buttons.indices) {
+            if (combination[i]) {
+                for (bit in buttons[i]) {
+                    counts[bit]++
                 }
-
-                return branchBound(newState, newRemaining, currBest, buttons)
             }
         }
+
+        // get binary effect of this combination
+        val reducedCounts = counts.map { it % 2 == 1 }
+
+        // Add this combination to the map of binary effects -> button combination
+        val specificCombination = combinations.getOrPut(reducedCounts) {mutableListOf()}
+        specificCombination.add(Pair(combination.filter { it }.size,counts))
+
     }
 
-
-    //
-    val buttonIndex = buttons.withIndex().filter { state[it.index] == -1}.filter {it.value.contains(mostRestricted.second)}.minBy { it.value.size }.index
-    //minBy { (_,button) ->
-    //    remaining.withIndex().filter { button.contains(it.index) }.minOf { it.value }
-    //}.index
-
-    val maxPresses =
-        remaining.withIndex().filter { (index, _) -> buttons[buttonIndex].contains(index) }.minOf { it.value }
-
-    for (i in 0..maxPresses) {
-        val newState = state.toMutableList()
-        newState[buttonIndex] = maxPresses - i
-
-        val newRemaining = remaining.toMutableList()
-        for (index in buttons[buttonIndex]) {
-            newRemaining[index] -= maxPresses - i
-        }
-
-        currBest = branchBound(newState, newRemaining, currBest, buttons)
-    }
-
-
-    return currBest
+    return combinations
 }
 
-fun formatDuration(ns: Long): String {
-    return when {
-        ns >= 1_000_000_000 -> "${ns / 1_000_000_000.0}s"
-        ns >= 1_000_000 -> "${ns / 1_000_000.0}ms"
-        ns >= 1_000 -> "${ns / 1_000.0}µs"
-        else -> "${ns}ns"
+// For a list of joltages, each counter with an odd number, also gets invoked an odd number of times.
+// Equivalently, an even counter gets invoked an even number of times. Since the final joltage level is 0 for all counters,
+// Odd counters have to all be canceled out at some point. Since order does not matter, we first cancel out the odd counters
+// and try out every combination that leaves a joltage list with only even values.
+// For those even values, if any button would only be pressed once, we would find it in another solution to
+// even out those initial values. This means that at least one of those combinations of evening-out-buttons leads
+// to an optimal solution where for the left over even counter values, buttons are only pressed in sets of two.
+// For those, we can solve the reduced problem:
+// Divide the remaining joltage levels by 2,
+// Solve this simpler problem
+// Multiply the solution by 2
+// Add the number of initial button that evens out the joltage levels
+// Do this for every combination of buttons that evens out the initial joltage levels.
+//
+// These simpler subproblems after dividing by 2 can then be solved in the same way. By memoizing results for subproblems,
+// the whole thing is very efficient.
+fun bifurcate(joltages: List<Int>, buttons: List<List<Int>>, memoizedResults: MutableMap<List<Int>,Int>, validCombinations: Map<List<Boolean>, MutableList<Pair<Int, IntArray>>>): Int {
+    // Already encountered this computation, return memoized result
+    if (memoizedResults.containsKey(joltages)) {
+        return memoizedResults[joltages]!!
     }
+
+    // invalid subproblem, return invalid
+    if (joltages.any { it < 0 }) {
+        return Int.MAX_VALUE
+    }
+
+    val parity = joltages.map { it % 2 == 1 }
+    var bestFound = Int.MAX_VALUE
+
+    // For each combination that transforms this state to one with all even values, branch
+    for ((size,counts) in validCombinations.getOrDefault(parity, listOf())) {
+
+        // calculate the new joltage levels
+        val newJoltage = joltages.withIndex().map { (i,v) -> (v - counts[i]).div(2)}
+
+        val bestContinuation = bifurcate(newJoltage,buttons,memoizedResults,validCombinations)
+
+        // if the branch is invalid or does not optimize our previous best result, throw it away
+        if (bestContinuation == Int.MAX_VALUE || size + 2 * bestContinuation >= bestFound) {
+            continue
+        }
+
+        bestFound = size + 2 * bestContinuation
+    }
+
+    // Memoize result
+    memoizedResults[joltages] = bestFound
+
+    return bestFound
 }
 
 fun parseInput() =
